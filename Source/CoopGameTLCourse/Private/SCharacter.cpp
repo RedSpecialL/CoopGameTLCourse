@@ -25,6 +25,16 @@ ASCharacter::ASCharacter()
 
 }
 
+FVector ASCharacter::GetPawnViewLocation() const
+{
+	if (CameraComponent != nullptr)
+	{
+		return CameraComponent->GetComponentLocation();
+	}
+
+	return Super::GetPawnViewLocation();
+}
+
 // Called when the game starts or when spawned
 void ASCharacter::BeginPlay()
 {
