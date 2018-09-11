@@ -8,6 +8,8 @@
 
 #include "Kismet/GameplayStatics.h"
 
+#include "Particles/ParticleSystem.h"
+
 
 
 // Sets default values
@@ -18,6 +20,8 @@ ASWeapon::ASWeapon()
 
 	SkeletalMeshComponent = CreateDefaultSubobject<USkeletalMeshComponent>(FName("SkeletalMeshComponent"));
 	RootComponent = SkeletalMeshComponent;
+
+	MuzzleSocketName = FName("MuzzleSocket");
 }
 
 // Called when the game starts or when spawned
@@ -55,10 +59,21 @@ void ASWeapon::Fire()
 
 			UGameplayStatics::ApplyPointDamage(HitActor, 20.0f, ShotDirection, HitResult,
 				MyOwner->GetInstigatorController(), this, DamageType);
+
+			if (ImpactEffect != nullptr)
+			{
+				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactEffect, 
+					HitResult.ImpactPoint, HitResult.ImpactNormal.Rotation());
+			}
 		}
 
-		
 		DrawDebugLine(GetWorld(), EyeLocation, TraceEnd, FColor::White, false, 1.0f, 0, 1.0f);
+
+		if (MuzzleEffect != nullptr)
+		{
+			UGameplayStatics::SpawnEmitterAttached(
+				MuzzleEffect, SkeletalMeshComponent, MuzzleSocketName);
+		}
 	}
 }
 
