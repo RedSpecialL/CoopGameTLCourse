@@ -1,8 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "SCharacter.h"
+
+#include "CoopGameTLCourse.h"
 #include "SWeapon.h"
 
+#include "Components/CapsuleComponent.h"
 
 #include "Camera/CameraComponent.h"
 
@@ -24,6 +27,8 @@ ASCharacter::ASCharacter()
 
 	GetMovementComponent()->GetNavAgentPropertiesRef().bCanCrouch = true;
 	GetMovementComponent()->GetNavAgentPropertiesRef().bCanJump = true;
+
+	GetCapsuleComponent()->SetCollisionResponseToChannel(COLLISION_WEAPON, ECR_Ignore);
 
 	ZoomedFOV = 65.0f;
 	ZoomInterpSpeed = 20.0f;
