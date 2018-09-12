@@ -6,6 +6,8 @@
 #include "Components/ActorComponent.h"
 #include "SHealthComponent.generated.h"
 
+// OnHelathChanget Event.
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_SixParams(FOnHealthChangeSignature, USHealthComponent*, HealthComponent, float, Health, float, HealthDelta, const class UDamageType*, DamageType, class AController*, InstigatedBy, AActor*, DamageCauser);
 
 UCLASS( ClassGroup=(COOP), meta=(BlueprintSpawnableComponent) )
 class COOPGAMETLCOURSE_API USHealthComponent : public UActorComponent
@@ -31,4 +33,6 @@ protected:
 	float DefaultHealth;
 
 public:
+	UPROPERTY(BlueprintAssignable, Category = "Events")
+	FOnHealthChangeSignature OnHealthChanged;
 };
