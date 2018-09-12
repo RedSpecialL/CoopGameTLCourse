@@ -20,7 +20,10 @@ public:
 	ASWeapon();
 
 protected:
+	virtual void BeginPlay() override;
+	
 	void PlayFireEffects(FVector TraceEnd);
+	void Fire();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	USkeletalMeshComponent* SkeletalMeshComponent;
@@ -51,7 +54,18 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	float BaseDamage;
 
+	FTimerHandle TimerHandle_TimeBetweeShots;
+
+	float LastFireTime;
+	/** RMP - Bullets per minute fired by weapon.*/
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	float RateOfFire;
+
+	// Derived from RateOfFire
+	float TimeBetweenShots;
 public:
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
-	void Fire();
+	void StartFire();
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	void StopFire();
 };
