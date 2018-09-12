@@ -6,6 +6,7 @@
 #include "SWeapon.h"
 
 #include "Components/CapsuleComponent.h"
+#include "Components/SHealthComponent.h"
 
 #include "Camera/CameraComponent.h"
 
@@ -25,6 +26,8 @@ ASCharacter::ASCharacter()
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(FName("CameraComponent"));
 	CameraComponent->SetupAttachment(SpringArmComponent);
 
+	HealthComponent = CreateDefaultSubobject<USHealthComponent>(FName("HealthComponent"));
+	
 	GetMovementComponent()->GetNavAgentPropertiesRef().bCanCrouch = true;
 	GetMovementComponent()->GetNavAgentPropertiesRef().bCanJump = true;
 
@@ -34,16 +37,6 @@ ASCharacter::ASCharacter()
 	ZoomInterpSpeed = 20.0f;
 
 	WeaponAttachSocketName = FName("WeaponSocket");
-}
-
-FVector ASCharacter::GetPawnViewLocation() const
-{
-	if (CameraComponent != nullptr)
-	{
-		return CameraComponent->GetComponentLocation();
-	}
-
-	return Super::GetPawnViewLocation();
 }
 
 // Called when the game starts or when spawned
@@ -63,7 +56,20 @@ void ASCharacter::BeginPlay()
 		CurrentWeapon->SetOwner(this);
 		CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, WeaponAttachSocketName);
 	}
+
+	HealthComponent->OnHealthChanged.AddDynamic(this, &ASCharacter::OnHealthChange);
 }
+
+FVector ASCharacter::GetPawnViewLocation() const
+{
+	if (CameraComponent != nullptr)
+	{
+		return CameraComponent->GetComponentLocation();
+	}
+
+	return Super::GetPawnViewLocation();
+}
+
 
 void ASCharacter::MoveForward(float Value)
 {
@@ -108,6 +114,22 @@ void ASCharacter::StopFire()
 	if (CurrentWeapon != nullptr)
 	{
 		CurrentWeapon->StopFire();
+	}
+}
+
+void ASCharacter::OnHealthChange(USHealthComponent* HealthComponent, float Health, float HealthDelta,
+	const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser)
+{
+	if (Health <= 0.0f && !bDied)
+	{
+		// Die!
+		bDied = true;
+		GetMovementComponent()->StopMovementImmediately();
+		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+		DetachFromControllerPendingDestroy();
+
+		SetLifeSpan(10.0f);
 	}
 }
 

@@ -9,6 +9,7 @@
 class UCameraComponent;
 class USpringArmComponent;
 class ASWeapon;
+class USHealthComponent;
 
 UCLASS()
 class COOPGAMETLCOURSE_API ASCharacter : public ACharacter
@@ -40,11 +41,16 @@ protected:
 	void StartFire();
 
 	void StopFire();
+	UFUNCTION()
+	void OnHealthChange(USHealthComponent* HealthComponent, float Health, float HealthDelta,
+		const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UCameraComponent* CameraComponent;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	USpringArmComponent* SpringArmComponent;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	USHealthComponent* HealthComponent;
 
 	bool bWantsToZoom;
 
@@ -65,13 +71,14 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly, Category = "Player")
 	FName WeaponAttachSocketName;
 
+	/** Pawn died previously.*/
+	UPROPERTY(BlueprintReadOnly, Category = "Player")
+	bool bDied;
+
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-	
-	
 };
