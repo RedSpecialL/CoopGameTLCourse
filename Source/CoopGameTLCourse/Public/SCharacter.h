@@ -42,7 +42,7 @@ protected:
 
 	void StopFire();
 	UFUNCTION()
-	void OnHealthChange(USHealthComponent* HealthComponent, float Health, float HealthDelta,
+	void OnHealthChange(USHealthComponent* OwningHealthComponent, float Health, float HealthDelta,
 		const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
