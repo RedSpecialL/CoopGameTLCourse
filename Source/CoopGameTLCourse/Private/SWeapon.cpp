@@ -56,7 +56,7 @@ void ASWeapon::Fire()
 		FVector TraceEndPoint = TraceEnd;
 
 		bool bLineTraceResult = GetWorld()->LineTraceSingleByChannel(
-			HitResult, EyeLocation, TraceEnd, ECC_Visibility, QueryParams);
+			HitResult, EyeLocation, TraceEnd, COLLISION_WEAPON, QueryParams);
 		if (bLineTraceResult)
 		{
 			// Blocking hit process damage.
