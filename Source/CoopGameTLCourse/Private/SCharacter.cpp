@@ -13,6 +13,8 @@
 #include "GameFramework/PawnMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 
+#include "Net/UnrealNetwork.h"
+
 // Sets default values
 ASCharacter::ASCharacter()
 {
@@ -45,19 +47,21 @@ void ASCharacter::BeginPlay()
 	Super::BeginPlay();
 	
 	DefaultFOV = CameraComponent->FieldOfView;
-
-	// Spawn default weapon;
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	CurrentWeapon = GetWorld()->SpawnActor<ASWeapon>(StarterWeaponClass, FVector::ZeroVector, FRotator::ZeroRotator, SpawnParams);
-
-	if (CurrentWeapon != nullptr)
-	{
-		CurrentWeapon->SetOwner(this);
-		CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, WeaponAttachSocketName);
-	}
-
 	HealthComponent->OnHealthChanged.AddDynamic(this, &ASCharacter::OnHealthChange);
+
+	if(Role == ROLE_Authority)
+	{
+		// Spawn default weapon;
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+		CurrentWeapon = GetWorld()->SpawnActor<ASWeapon>(StarterWeaponClass, FVector::ZeroVector, FRotator::ZeroRotator, SpawnParams);
+		if (CurrentWeapon != nullptr)
+		{
+			CurrentWeapon->SetOwner(this);
+			CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, WeaponAttachSocketName);
+		}
+	}
 }
 
 FVector ASCharacter::GetPawnViewLocation() const
@@ -168,3 +172,9 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	PlayerInputComponent->BindAction("Fire", IE_Released, this, &ASCharacter::StopFire);
 }
 
+void ASCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ASCharacter, CurrentWeapon);
+}
