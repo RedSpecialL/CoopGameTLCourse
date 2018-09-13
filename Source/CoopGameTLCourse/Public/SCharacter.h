@@ -72,7 +72,7 @@ protected:
 	FName WeaponAttachSocketName;
 
 	/** Pawn died previously.*/
-	UPROPERTY(BlueprintReadOnly, Category = "Player")
+	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Player")
 	bool bDied;
 
 public:
