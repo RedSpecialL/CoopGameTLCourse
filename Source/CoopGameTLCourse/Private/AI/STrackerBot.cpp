@@ -40,6 +40,7 @@ ASTrackerBot::ASTrackerBot()
 	HealthComponent->OnHealthChanged.AddDynamic(this, &ASTrackerBot::HandleTakeDamage);
 
 	bUseVelocityChange = false;
+	bExploded = false;
 	MovementForce = 1000.0f;
 	RequiredDistanceToTarget = 100;
 	
@@ -51,16 +52,18 @@ ASTrackerBot::ASTrackerBot()
 
 void ASTrackerBot::NotifyActorBeginOverlap(AActor* OtherActor)
 {
-	if (!bStartedSelfDestruction)
+	if (!bStartedSelfDestruction && !bExploded)
 	{
 		ASCharacter* PlayerPawn = Cast<ASCharacter>(OtherActor);
 		if (PlayerPawn != nullptr)
 		{
 			// We overlapped with a player!
-
-			// Start self destruction sequence.
-			GetWorldTimerManager().SetTimer(TimerHandle_SelfDamage, this, &ASTrackerBot::DamageSelf,
-				SelfDamageInterval, true, 0.0f);
+			if (Role == ROLE_Authority)
+			{
+				// Start self destruction sequence.
+				GetWorldTimerManager().SetTimer(TimerHandle_SelfDamage, this, &ASTrackerBot::DamageSelf,
+					SelfDamageInterval, true, 0.0f);
+			}
 
 			bStartedSelfDestruction = true;
 
@@ -73,8 +76,11 @@ void ASTrackerBot::NotifyActorBeginOverlap(AActor* OtherActor)
 void ASTrackerBot::BeginPlay()
 {
 	Super::BeginPlay();
-
-	NextPathPoint = GetNextPathPoint();
+	
+	if (Role == ROLE_Authority)
+	{
+		NextPathPoint = GetNextPathPoint();
+	}
 }
 
 FVector ASTrackerBot::GetNextPathPoint()
@@ -125,21 +131,24 @@ void ASTrackerBot::SelfDestract()
 	bExploded = true;
 
 	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionEffect, GetActorLocation());
-
-
-	TArray<AActor*> IgnoredActors;
-	IgnoredActors.Add(this);
-	
-	// ApplyDamage.
-	UGameplayStatics::ApplyRadialDamage(this, ExplosionDamage, GetActorLocation(), ExplosionRadius,
-		nullptr, IgnoredActors, this, GetInstigatorController(), true);
-
-	DrawDebugSphere(GetWorld(), GetActorLocation(), ExplosionRadius, 12, FColor::Red, false, 2.0f, 0, 1);
-
-	// Delete Actor immediately;
-	Destroy();
-
 	UGameplayStatics::PlaySoundAtLocation(this, ExploadSound, GetActorLocation());
+
+	MeshComp->SetVisibility(false, true);
+	MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	if (Role == ROLE_Authority)
+	{
+		TArray<AActor*> IgnoredActors;
+		IgnoredActors.Add(this);
+
+		// ApplyDamage.
+		UGameplayStatics::ApplyRadialDamage(this, ExplosionDamage, GetActorLocation(), ExplosionRadius,
+			nullptr, IgnoredActors, this, GetInstigatorController(), true);
+
+		DrawDebugSphere(GetWorld(), GetActorLocation(), ExplosionRadius, 12, FColor::Red, false, 2.0f, 0, 1);
+
+		SetLifeSpan(2.0f);
+	}
 }
 
 void ASTrackerBot::DamageSelf()
@@ -152,25 +161,28 @@ void ASTrackerBot::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	float DistatnceToTarget = (GetActorLocation() - NextPathPoint).Size();
-
-	if (DistatnceToTarget <= RequiredDistanceToTarget)
+	if(Role == ROLE_Authority && !bExploded)
 	{
-		NextPathPoint = GetNextPathPoint();
+		float DistatnceToTarget = (GetActorLocation() - NextPathPoint).Size();
 
-		DrawDebugString(GetWorld(), GetActorLocation(), FString("TargetReached"));
+		if (DistatnceToTarget <= RequiredDistanceToTarget)
+		{
+			NextPathPoint = GetNextPathPoint();
+
+			DrawDebugString(GetWorld(), GetActorLocation(), FString("TargetReached"));
+		}
+		else
+		{
+			//Keep moving towards next target.
+			FVector ForceDirection = NextPathPoint - GetActorLocation();
+			ForceDirection.Normalize();
+
+			ForceDirection *= MovementForce;
+
+			MeshComp->AddForce(ForceDirection, NAME_None, bUseVelocityChange);
+			DrawDebugDirectionalArrow(GetWorld(), GetActorLocation(), GetActorLocation() + ForceDirection, 32, FColor::Yellow, false, 0.0f, 0, 1.0f);
+		}
+
+		DrawDebugSphere(GetWorld(), NextPathPoint, 20, 12, FColor::Yellow, false, 0.0f, 1.0f);
 	}
-	else
-	{
-		//Keep moving towards next target.
-		FVector ForceDirection = NextPathPoint - GetActorLocation();
-		ForceDirection.Normalize();
-
-		ForceDirection *= MovementForce;
-
-		MeshComp->AddForce(ForceDirection, NAME_None, bUseVelocityChange);
-		DrawDebugDirectionalArrow(GetWorld(), GetActorLocation(), GetActorLocation() + ForceDirection, 32, FColor::Yellow, false, 0.0f, 0, 1.0f);
-	}
-
-	DrawDebugSphere(GetWorld(), NextPathPoint, 20, 12, FColor::Yellow, false, 0.0f, 1.0f);
 }
