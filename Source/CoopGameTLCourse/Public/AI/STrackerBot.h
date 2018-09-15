@@ -10,6 +10,7 @@ class UStaticMeshComponent;
 class USHealthComponent;
 class UMaterialInstanceDynamic;
 class UParticleSystem;
+class USphereComponent;
 
 UCLASS()
 class COOPGAMETLCOURSE_API ASTrackerBot : public APawn
@@ -19,6 +20,8 @@ class COOPGAMETLCOURSE_API ASTrackerBot : public APawn
 public:
 	// Sets default values for this pawn's properties
 	ASTrackerBot();
+
+	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
 
 protected:
 	// Called when the game starts or when spawned
@@ -31,12 +34,15 @@ protected:
 		const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
 
 	void SelfDestract();
+	void DamageSelf();
 
 protected:
 	UPROPERTY(VisibleDefaultsOnly, Category = "Components")
 	UStaticMeshComponent* MeshComp;
 	UPROPERTY(VisibleDefaultsOnly, Category = "Components")
 	USHealthComponent* HealthComponent;
+	UPROPERTY(VisibleDefaultsOnly, Category = "Components")
+	USphereComponent* SphereComponent;
 
 	// Next point in the navigation path.
 	FVector NextPathPoint;
@@ -52,11 +58,16 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "TrackerBot")
 	UParticleSystem* ExplosionEffect;
 
+	bool bStartedSelfDestruction;
+
 	bool bExploded;
 	UPROPERTY(EditDefaultsOnly, Category = "TrackerBot")
 	float ExplosionRadius;
 	UPROPERTY(EditDefaultsOnly, Category = "TrackerBot")
 	float ExplosionDamage;
+
+	FTimerHandle TimerHandle_SelfDamage;
+
 
 public:	
 	// Called every frame

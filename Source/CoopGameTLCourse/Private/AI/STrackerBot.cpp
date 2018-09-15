@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "STrackerBot.h"
+#include "SCharacter.h"
 #include "ShealthComponent.h"
 
 #include "DrawDebugHelpers.h"
@@ -8,6 +9,7 @@
 #include "NavigationPath.h"
 
 #include "Components/StaticMeshComponent.h"
+#include "Components/SphereComponent.h"
 
 #include "Kismet/GameplayStatics.h"
 
@@ -24,16 +26,40 @@ ASTrackerBot::ASTrackerBot()
 	MeshComp->SetSimulatePhysics(true);
 	RootComponent = MeshComp;
 
-	HealthComponent = CreateDefaultSubobject<USHealthComponent>(FName("HealthComponents"));
+	SphereComponent = CreateDefaultSubobject<USphereComponent>(FName("SphereComponent"));
+	SphereComponent->SetSphereRadius(200);
+	SphereComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	SphereComponent->SetCollisionResponseToAllChannels(ECR_Ignore);
+	SphereComponent->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+	
+	SphereComponent->SetupAttachment(RootComponent);
+
+	HealthComponent = CreateDefaultSubobject<USHealthComponent>(FName("HealthComponent"));
 	HealthComponent->OnHealthChanged.AddDynamic(this, &ASTrackerBot::HandleTakeDamage);
 
 	bUseVelocityChange = false;
 	MovementForce = 1000.0f;
 	RequiredDistanceToTarget = 100;
-
-
+	
 	ExplosionDamage = 40.0f;
 	ExplosionRadius = 200.0f;
+}
+
+void ASTrackerBot::NotifyActorBeginOverlap(AActor* OtherActor)
+{
+	if (!bStartedSelfDestruction)
+	{
+		ASCharacter* PlayerPawn = Cast<ASCharacter>(OtherActor);
+		if (PlayerPawn != nullptr)
+		{
+			// We overlapped with a player!
+
+			// Start self destruction sequence.
+			GetWorldTimerManager().SetTimer(TimerHandle_SelfDamage, this, &ASTrackerBot::DamageSelf, 0.5f, true, 0.0f);
+
+			bStartedSelfDestruction = true;
+		}
+	}
 }
 
 // Called when the game starts or when spawned
@@ -105,6 +131,11 @@ void ASTrackerBot::SelfDestract()
 
 	// Delete Actor immediately;
 	Destroy();
+}
+
+void ASTrackerBot::DamageSelf()
+{
+	UGameplayStatics::ApplyDamage(this, 20.0f, GetInstigatorController(), this, nullptr);
 }
 
 // Called every frame
