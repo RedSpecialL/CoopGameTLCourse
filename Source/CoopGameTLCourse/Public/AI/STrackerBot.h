@@ -8,6 +8,7 @@
 
 class UStaticMeshComponent;
 class USHealthComponent;
+class UMaterialInstanceDynamic;
 
 UCLASS()
 class COOPGAMETLCOURSE_API ASTrackerBot : public APawn
@@ -42,6 +43,9 @@ protected:
 	bool bUseVelocityChange;
 	UPROPERTY(EditDefaultsOnly, Category = "TrackerBot")
 	float RequiredDistanceToTarget;
+
+	// Dynamic material to pulse on damage.
+	UMaterialInstanceDynamic* MatInst;
 
 public:	
 	// Called every frame

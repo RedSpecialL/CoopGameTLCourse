@@ -15,6 +15,8 @@
 
 #include "Net/UnrealNetwork.h"
 
+#include "Materials/MaterialInstanceDynamic.h"
+
 // Sets default values
 ASCharacter::ASCharacter()
 {
