@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "STrackerBot.h"
+#include "ShealthComponent.h"
 
 #include "DrawDebugHelpers.h"
 #include "NavigationSystem.h"
@@ -20,6 +21,9 @@ ASTrackerBot::ASTrackerBot()
 	MeshComp->SetCanEverAffectNavigation(false);
 	MeshComp->SetSimulatePhysics(true);
 	RootComponent = MeshComp;
+
+	HealthComponent = CreateDefaultSubobject<USHealthComponent>(FName("HealthComponents"));
+	HealthComponent->OnHealthChanged.AddDynamic(this, &ASTrackerBot::HandleTakeDamage);
 
 	bUseVelocityChange = false;
 	MovementForce = 1000.0f;
@@ -49,6 +53,17 @@ FVector ASTrackerBot::GetNextPathPoint()
 
 	// Failed to find path
 	return GetActorLocation();
+}
+
+void ASTrackerBot::HandleTakeDamage(USHealthComponent* OwningHealthComponent, float Health,
+	float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy,
+	AActor* DamageCauser)
+{
+	// Explode on hitpoint == 0
+
+	// TODO: pulse the material on hit.
+
+	UE_LOG(LogTemp, Log, TEXT("Health %s of %s"), *FString::SanitizeFloat(Health), *GetName());
 }
 
 // Called every frame
