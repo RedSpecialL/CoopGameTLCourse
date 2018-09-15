@@ -15,6 +15,8 @@
 
 #include "Particles/ParticleSystem.h"
 
+#include "Sound/SoundCue.h"
+
 // Sets default values
 ASTrackerBot::ASTrackerBot()
 {
@@ -43,6 +45,8 @@ ASTrackerBot::ASTrackerBot()
 	
 	ExplosionDamage = 40.0f;
 	ExplosionRadius = 200.0f;
+
+	SelfDamageInterval = 0.25f;
 }
 
 void ASTrackerBot::NotifyActorBeginOverlap(AActor* OtherActor)
@@ -55,9 +59,12 @@ void ASTrackerBot::NotifyActorBeginOverlap(AActor* OtherActor)
 			// We overlapped with a player!
 
 			// Start self destruction sequence.
-			GetWorldTimerManager().SetTimer(TimerHandle_SelfDamage, this, &ASTrackerBot::DamageSelf, 0.5f, true, 0.0f);
+			GetWorldTimerManager().SetTimer(TimerHandle_SelfDamage, this, &ASTrackerBot::DamageSelf,
+				SelfDamageInterval, true, 0.0f);
 
 			bStartedSelfDestruction = true;
+
+			UGameplayStatics::SpawnSoundAttached(SelfDestractSound, RootComponent);
 		}
 	}
 }
@@ -131,6 +138,8 @@ void ASTrackerBot::SelfDestract()
 
 	// Delete Actor immediately;
 	Destroy();
+
+	UGameplayStatics::PlaySoundAtLocation(this, ExploadSound, GetActorLocation());
 }
 
 void ASTrackerBot::DamageSelf()

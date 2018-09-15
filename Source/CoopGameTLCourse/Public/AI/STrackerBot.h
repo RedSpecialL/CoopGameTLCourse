@@ -11,6 +11,7 @@ class USHealthComponent;
 class UMaterialInstanceDynamic;
 class UParticleSystem;
 class USphereComponent;
+class USoundCue;
 
 UCLASS()
 class COOPGAMETLCOURSE_API ASTrackerBot : public APawn
@@ -44,6 +45,10 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly, Category = "Components")
 	USphereComponent* SphereComponent;
 
+	UPROPERTY(EditDefaultsOnly, Category = "TrackerBot")
+	USoundCue* SelfDestractSound;
+	UPROPERTY(EditDefaultsOnly, Category = "TrackerBot")
+	USoundCue* ExploadSound;
 	// Next point in the navigation path.
 	FVector NextPathPoint;
 	UPROPERTY(EditDefaultsOnly, Category = "TrackerBot")
@@ -65,10 +70,10 @@ protected:
 	float ExplosionRadius;
 	UPROPERTY(EditDefaultsOnly, Category = "TrackerBot")
 	float ExplosionDamage;
-
+	UPROPERTY(EditDefaultsOnly, Category = "TrackerBot")
+	float SelfDamageInterval;
+	
 	FTimerHandle TimerHandle_SelfDamage;
-
-
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
