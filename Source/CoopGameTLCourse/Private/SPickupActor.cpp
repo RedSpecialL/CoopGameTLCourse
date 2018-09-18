@@ -34,7 +34,7 @@ void ASPickupActor::NotifyActorBeginOverlap(AActor* OtherActor)
 	{
 		if (PowerupInstance != nullptr)
 		{
-			PowerupInstance->ActivatePowerup();
+			PowerupInstance->ActivatePowerup(OtherActor);
 			PowerupInstance = nullptr;
 
 			// Set timer to respawn
