@@ -22,6 +22,8 @@ public:
 
 	virtual void Tick(float DeltaSeconds) override;
 
+	void CheckAnyPlayerAlive();
+
 protected:
 
 	FTimerHandle TimerHandle_BotSpawner;
@@ -37,6 +39,8 @@ protected:
 	float TimeBetweenWaves;
 
 	void CheckWaveState();
+
+	void GameOver();
 
 protected:
 
