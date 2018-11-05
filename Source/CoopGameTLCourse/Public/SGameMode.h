@@ -8,6 +8,9 @@
 
 enum class EWaveState : uint8;
 
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnActorKilled, AActor*, VictimActor, AActor*, KillerActor, AController*, KillerController);
+
 /**
  * 
  */
@@ -25,6 +28,9 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 
 	void CheckAnyPlayerAlive();
+
+	UPROPERTY(BlueprintAssignable, Category = "GameMode")
+	FOnActorKilled OnActorKilled;
 
 protected:
 
@@ -46,6 +52,8 @@ protected:
 
 	void SetWaveState(EWaveState NewState);
 
+
+
 protected:
 
 	/** Hook for BP to spawn a single bot. */
@@ -60,5 +68,4 @@ protected:
 	void EndWave();
 	/** Sets timer for next startwave.*/
 	void PrepareForNextWave();
-
 };

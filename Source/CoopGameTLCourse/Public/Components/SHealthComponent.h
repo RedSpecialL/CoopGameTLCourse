@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -22,10 +22,12 @@ public:
 	void Heal(float HealAmount);
 
 	float GetHealth() const;
-
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
+
+
+	bool bIsDead;
 
 	UPROPERTY(ReplicatedUsing=OnRep_Health,BlueprintReadOnly, Category = "HealthComponent")
 	float Health;
