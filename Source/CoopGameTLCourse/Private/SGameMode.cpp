@@ -110,6 +110,19 @@ void ASGameMode::SetWaveState(EWaveState NewState)
 	}
 }
 
+void ASGameMode::RestartDeadPlayers()
+{
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		APlayerController* PC = It->Get();
+		if (PC && PC->GetPawn() == nullptr)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("RESTART"))
+			RestartPlayer(PC);
+		}
+	}
+}
+
 void ASGameMode::SpawnBotTimerElapsed()
 {
 	SpawnNewBot();
@@ -147,4 +160,6 @@ void ASGameMode::PrepareForNextWave()
 		TimerHandle_NextWaveStart, this, &ASGameMode::StartWave, TimeBetweenWaves, false);
 
 	SetWaveState(EWaveState::WaitingToStart);
+
+	RestartDeadPlayers();
 }

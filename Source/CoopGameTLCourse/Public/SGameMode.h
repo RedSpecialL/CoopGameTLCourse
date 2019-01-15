@@ -52,7 +52,7 @@ protected:
 
 	void SetWaveState(EWaveState NewState);
 
-
+	void RestartDeadPlayers();
 
 protected:
 
