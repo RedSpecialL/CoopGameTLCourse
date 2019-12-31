@@ -38,10 +38,12 @@ ASWeapon::ASWeapon()
 
 	RateOfFire = 600;
 
+	BulletSpread = 2.0f;
 	SetReplicates(true);
 
 	NetUpdateFrequency = 66.0f;
 	MinNetUpdateFrequency = 33.0f;
+
 }
 
 void ASWeapon::BeginPlay()
@@ -67,6 +69,12 @@ void ASWeapon::Fire()
 		FRotator EyeRotation;
 		MyOwner->GetActorEyesViewPoint(EyeLocation, EyeRotation);
 		FVector ShotDirection = EyeRotation.Vector();
+		
+		// Bullet Spread.
+		float HalfRad = FMath::DegreesToRadians(BulletSpread);
+		ShotDirection = FMath::VRandCone(ShotDirection, HalfRad, HalfRad);
+
+
 		FVector TraceEnd = EyeLocation + (ShotDirection * 1000);
 		FHitResult HitResult;
 		
