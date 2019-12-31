@@ -36,11 +36,6 @@ protected:
 
 	void BeginZoom(); 
 
-	void EndZoom();
-
-	void StartFire();
-
-	void StopFire();
 	UFUNCTION()
 	void OnHealthChange(USHealthComponent* OwningHealthComponent, float Health, float HealthDelta,
 		const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
@@ -81,4 +76,10 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	void EndZoom();
+	UFUNCTION(BlueprintCallable, Category = "Player")
+	void StartFire();
+	UFUNCTION(BlueprintCallable, Category = "Player")
+	void StopFire();
 };
