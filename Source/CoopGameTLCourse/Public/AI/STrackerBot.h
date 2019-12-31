@@ -37,6 +37,8 @@ protected:
 	void SelfDestract();
 	void DamageSelf();
 
+	void RefreshPath();
+
 protected:
 	UPROPERTY(VisibleDefaultsOnly, Category = "Components")
 	UStaticMeshComponent* MeshComp;
@@ -74,6 +76,8 @@ protected:
 	float SelfDamageInterval;
 	
 	FTimerHandle TimerHandle_SelfDamage;
+
+	FTimerHandle TimerHandle_RefreshPath;
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
