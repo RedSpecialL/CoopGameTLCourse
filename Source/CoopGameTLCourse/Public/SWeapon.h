@@ -39,9 +39,9 @@ protected:
 	virtual void BeginPlay() override;
 	
 	void PlayFireEffects(FVector TraceEnd);
-	void Fire();
+	virtual void Fire();
 	UFUNCTION(Server, Reliable, WithValidation)
-	void ServerFire();
+	virtual void ServerFire();
 
 
 	void PlayImpactEffects(EPhysicalSurface SurfaceType, FVector ImpactPoint);
