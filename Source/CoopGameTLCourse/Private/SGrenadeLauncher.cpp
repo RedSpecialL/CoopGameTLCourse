@@ -10,14 +10,22 @@ void ASGrenadeLauncher::Fire()
 		ServerFire();
 	}
 
-	FVector SpawnLocation = SkeletalMeshComponent->GetSocketLocation(FName("MuzzleFlashSocket"));
-	FRotator SpawnRotation = SkeletalMeshComponent->GetSocketRotation(FName("MuzzleFlashSocket"));
+	AActor* MyOwner = GetOwner();
+	if (MyOwner != nullptr && ProjectileToSwawn != nullptr)
+	{
+		FVector EyeLocation;
+		FRotator EyeRotation;
+		MyOwner->GetActorEyesViewPoint(EyeLocation, EyeRotation);
+	
+		FVector SpawnLocation = SkeletalMeshComponent->GetSocketLocation(FName("MuzzleFlashSocket"));
+		FActorSpawnParameters ActorSpawnParams;
+		ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
 
-	FActorSpawnParameters ActorSpawnParams;
-	ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
+		// Spawn projectile.
+		GetWorld()->SpawnActor<AActor>(ProjectileToSwawn, SpawnLocation, EyeRotation, ActorSpawnParams);
+	}
 
-	// Spawn projectile.
-	GetWorld()->SpawnActor<AActor>(ProjectileToSwawn, SpawnLocation, SpawnRotation, ActorSpawnParams);
+
 }
 
 void ASGrenadeLauncher::ServerFire_Implementation()
