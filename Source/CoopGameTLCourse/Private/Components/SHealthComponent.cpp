@@ -10,7 +10,7 @@ USHealthComponent::USHealthComponent()
 	DefaultHealth = 100.0f;
 	bIsDead = false;
 	TeamNum = 255;
-	SetIsReplicated(true);
+	SetIsReplicatedByDefault(true);
 }
 
 
