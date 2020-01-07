@@ -37,10 +37,14 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Explosion")
 	float PushingForce;
 
+	UPROPERTY(ReplicatedUsing=OnRep_Exploded)
 	bool bExploded = false;
 
 	UFUNCTION()
 	void SelfDestract();
+
+	UFUNCTION()
+	void OnRep_Exploded();
 
 protected:
 	UPROPERTY(VisibleAnywhere, Category = "Components")

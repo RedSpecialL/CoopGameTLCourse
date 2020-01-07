@@ -9,6 +9,7 @@
 #include "Materials/Material.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Net/UnrealNetwork.h"
 
 // Sets default values
 ASExplosiveBarrel::ASExplosiveBarrel()
@@ -19,8 +20,7 @@ ASExplosiveBarrel::ASExplosiveBarrel()
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(FName("MeshComp"));
 	Mesh->SetCanEverAffectNavigation(false);
 	Mesh->SetSimulatePhysics(true);
-	Mesh->SetIsReplicated(true);
-
+	
 	RootComponent = Mesh;
 
 	HealthComponent = CreateDefaultSubobject<USHealthComponent>(FName("HealthComponent"));
@@ -48,7 +48,6 @@ void ASExplosiveBarrel::HandleTakeDamage(USHealthComponent* OwningHealthComponen
 
 	if (Health <= 0.0f)
 	{
-		bExploded = true;
 		SelfDestract();
 	}
 }
@@ -56,12 +55,10 @@ void ASExplosiveBarrel::HandleTakeDamage(USHealthComponent* OwningHealthComponen
 void ASExplosiveBarrel::SelfDestract()
 {
 	FVector MyLocation = GetActorLocation();
-	if (ExplodedMaterial != nullptr)
-	{
-		Mesh->SetMaterial(0, ExplodedMaterial);
-	}
 
-	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionEffect, MyLocation);
+	bExploded = true;
+	OnRep_Exploded();
+
 	if (Mesh->IsSimulatingPhysics())
 	{
 		Mesh->AddImpulse(FVector{ 0.0f, 0.0f, 50000.0f });
@@ -95,3 +92,22 @@ void ASExplosiveBarrel::SelfDestract()
 	}
 }
 
+void ASExplosiveBarrel::OnRep_Exploded()
+{
+	if (ExplodedMaterial != nullptr)
+	{
+		Mesh->SetMaterial(0, ExplodedMaterial);
+	}
+
+	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionEffect, GetActorLocation());
+
+
+}
+
+void ASExplosiveBarrel::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ASExplosiveBarrel, bExploded);
+
+}
