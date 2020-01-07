@@ -34,7 +34,8 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Explosion")
 	float PushingRadius;
-
+	UPROPERTY(EditDefaultsOnly, Category = "Explosion")
+	float PushingForce;
 
 	bool bExploded = false;
 
@@ -48,7 +49,6 @@ protected:
 	USHealthComponent* HealthComponent;
 	UPROPERTY(EditDefaultsOnly, Category = "Effects")
 	UParticleSystem* ExplosionEffect;
-	//UPROPERTY(EditDefaultsOnly, Category = "Effects")
-	//USphereComponent* ExplosionSphere;
-
+	UPROPERTY(EditAnywhere)
+	class UMaterial* ExplodedMaterial;
 };
